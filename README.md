@@ -23,6 +23,7 @@
 \*\*Repo description\*\*
 
 ## Overview
+This project provides an easy-to-follow guide and implementation for adding custom pixels to Shopify stores, allowing you to subscribe to client-side events like page views, product clicks, add-to-cart, and purchases for forwarding it to Rudderstack.
 
 \*\*Describe what the software does.\*\*
 
@@ -37,7 +38,3 @@
 ## Contribute
 
 We would love to see you contribute to RudderStack. Get more information on how to contribute [**here**](CONTRIBUTING.md).
-
-## License
-
-The RudderStack \*\*software name\*\* is released under the [**MIT License**](https://opensource.org/licenses/MIT).
