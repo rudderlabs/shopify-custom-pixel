@@ -36,10 +36,6 @@ function setNestedValue(obj, path, value) {
   }, obj);
 }
 
-// Mapping of Shopify fields to RudderStack fields
-
-
-
 (function () {
   "use strict";
   window.RudderSnippetVersion = "3.0.14";
