@@ -34,6 +34,7 @@ This project provides an easy-to-follow guide and implementation for adding cust
 ## Getting started
 
 \*\*Describe how to use the software.\*\*
+Replace all the references of the DATAPLANE_URL & WRITE_KEY placeholder with actual values
 
 ## Contribute
 
