@@ -6,4 +6,4 @@ All notable changes to this project will be documented in this file.
 
 ### Features
 
-* Initial commit of custom pixel for sending subscribed client-side events to Rudderstack
+* Initial commit of custom pixel for sending subscribed client-side events to RudderStack

@@ -201,7 +201,7 @@ const checkoutStartedCompletedEventMapping = [
 
 (function () {
   "use strict";
-  window.RudderSnippetVersion = "3.0.14";
+  window.RudderSnippetVersion = "3.0.30";
   var identifier = "rudderanalytics";
   if (!window[identifier]) {
     window[identifier] = [];
@@ -298,7 +298,7 @@ const checkoutStartedCompletedEventMapping = [
             .concat(window.rudderAnalyticsBuildType, "/")
             .concat(sdkName),
           "data-rsa-write-key",
-          "<WRITE_KEY>",
+          WRITE_KEY,
         );
       };
       if (typeof Promise === "undefined" || typeof globalThis === "undefined") {

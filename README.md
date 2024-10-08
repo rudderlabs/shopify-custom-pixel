@@ -23,7 +23,7 @@
 \*\*Repo description\*\*
 
 ## Overview
-This project provides an easy-to-follow guide and implementation for adding custom pixels to Shopify stores, allowing you to subscribe to client-side events like page views, product clicks, add-to-cart, and purchases for forwarding it to Rudderstack.
+This project provides an easy-to-follow guide and implementation for adding custom pixels to Shopify stores, allowing you to subscribe to client-side events like page views, product clicks, add-to-cart, and purchases for forwarding it to RudderStack.
 
 \*\*Describe what the software does.\*\*
 
@@ -34,7 +34,8 @@ This project provides an easy-to-follow guide and implementation for adding cust
 ## Getting started
 
 \*\*Describe how to use the software.\*\*
-Replace all the references of the DATAPLANE_URL & WRITE_KEY placeholder with actual values
+Replace all the references of the <DATAPLANE_URL> & <WRITE_KEY> placeholder with actual values at (src/index.js)
+Follow https://help.shopify.com/en/manual/promoting-marketing/pixels/custom-pixels/manage?shpxid=6c5e6078-ECEC-4AC3-EE41-151B603831FB for adding the custom pixel in the store
 
 ## Contribute
 
