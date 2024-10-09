@@ -283,7 +283,7 @@ const checkoutStartedCompletedEventMapping = [
         window.rudderAnalyticsMount();
       }
       var loadOptions = {};
-        rudderanalytics.load(WRITE_KEY, DATAPLANE_URL, loadOptions);
+      rudderanalytics.load(WRITE_KEY, DATAPLANE_URL, loadOptions);
     }
   }
 })();

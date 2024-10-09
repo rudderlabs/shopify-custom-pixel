@@ -36,7 +36,3 @@ This project provides an easy-to-follow guide and implementation for adding cust
 \*\*Describe how to use the software.\*\*
 Replace all the references of the <DATAPLANE_URL> & <WRITE_KEY> placeholder with actual values at (src/index.js)
 Follow https://help.shopify.com/en/manual/promoting-marketing/pixels/custom-pixels/manage for adding the custom pixel in the store
-
-## Contribute
-
-We would love to see you contribute to RudderStack. Get more information on how to contribute [**here**](CONTRIBUTING.md).
