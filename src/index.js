@@ -394,7 +394,7 @@ analytics.subscribe("checkout_started", (event) => {
 
   const trackProperties = {
     products: products,
-    order_id: event.id,
+    order_id: event?.data?.checkout?.order?.id,
     checkout_id: event?.data?.checkout?.token,
     total: event?.data?.checkout?.totalPrice?.amount,
     currency: event?.data?.checkout?.currencyCode,
@@ -439,7 +439,7 @@ analytics.subscribe("checkout_completed", (event) => {
 
   const trackProperties = {
     products: products,
-    order_id: event.id,
+    order_id: event?.data?.checkout?.order?.id,
     checkout_id: event?.data?.checkout?.token,
     currency: event?.data?.checkout?.currencyCode,
     discount: event?.data?.checkout?.discountsAmount?.amount,
