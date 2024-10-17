@@ -24,15 +24,13 @@ function mapContextLineObjectKeys(obj, mapping) {
     if (!Array.isArray(mapping)) {
         throw new TypeError("mapping should be an array");
     }
-    const acc = { ...obj };
-
     return mapping.reduce((accumulator, { shopifyField, rudderField }) => {
         const value = getNestedValue(obj, shopifyField);
         if (value !== undefined) {
             setNestedValue(accumulator, rudderField, value);
         }
-        return acc;
-    }, acc);
+        return accumulator;
+    }, { ...obj });
 }
 
 function getNestedValue(obj, path) {
