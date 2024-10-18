@@ -339,7 +339,7 @@ analytics.subscribe("product_viewed", (event) => {
         event.context,
         contextualFieldMapping,
     );
-    const shopifyDetailsObject = event?.data;
+    const shopifyDetailsObject = event;
 
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
@@ -369,7 +369,7 @@ analytics.subscribe("cart_viewed", (event) => {
         event.context,
         contextualFieldMapping,
     );
-    const shopifyDetailsObject = event?.data;
+    const shopifyDetailsObject = event;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
     rudderanalytics.track("Cart Viewed", trackProperties, contextualPayload);
@@ -384,7 +384,7 @@ analytics.subscribe("product_added_to_cart", (event) => {
         event.context,
         contextualFieldMapping,
     );
-    const shopifyDetailsObject = event?.data;
+    const shopifyDetailsObject = event;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
     rudderanalytics.track("Product Added", trackProperties, contextualPayload);
@@ -400,7 +400,7 @@ analytics.subscribe("product_removed_from_cart", (event) => {
         event.context,
         contextualFieldMapping,
     );
-    const shopifyDetailsObject = event?.data;
+    const shopifyDetailsObject = event;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
     rudderanalytics.track("Product Removed", trackProperties, contextualPayload);
@@ -428,7 +428,7 @@ analytics.subscribe("collection_viewed", (event) => {
         event.context,
         contextualFieldMapping,
     );
-    const shopifyDetailsObject = event?.data;
+    const shopifyDetailsObject = event;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
     rudderanalytics.track(
@@ -466,7 +466,7 @@ analytics.subscribe("checkout_started", (event) => {
         event.context,
         contextualFieldMapping,
     );
-    const shopifyDetailsObject = event?.data;
+    const shopifyDetailsObject = event;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
     rudderanalytics.track("Checkout Started", finalProperties, contextualPayload);
@@ -481,7 +481,7 @@ analytics.subscribe("search_submitted", (event) => {
         event.context,
         contextualFieldMapping,
     );
-    const shopifyDetailsObject = event?.data;
+    const shopifyDetailsObject = event;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
     rudderanalytics.track("Products Searched", payload, contextualPayload);
@@ -514,7 +514,7 @@ analytics.subscribe("checkout_completed", (event) => {
         event.context,
         contextualFieldMapping,
     );
-    const shopifyDetailsObject = event?.data;
+    const shopifyDetailsObject = event;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
     rudderanalytics.track("Order Completed", trackProperties, contextualPayload);
@@ -525,7 +525,7 @@ analytics.subscribe("page_viewed", (event) => {
         event.context,
         contextualFieldMapping,
     );
-    const shopifyDetailsObject = event?.data;
+    const shopifyDetailsObject = event;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
     const pageProperties = {
@@ -560,7 +560,7 @@ analytics.subscribe("checkout_address_info_submitted", (event) => {
         event.context,
         contextualFieldMapping,
     );
-    const shopifyDetailsObject = event?.data;
+    const shopifyDetailsObject = event;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
     const trackProperties = {
         ...event.data.checkout,
@@ -597,7 +597,7 @@ analytics.subscribe("checkout_contact_info_submitted", (event) => {
         event.context,
         contextualFieldMapping,
     );
-    const shopifyDetailsObject = event?.data;
+    const shopifyDetailsObject = event;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
     const trackProperties = {
         ...event.data.checkout,
@@ -634,7 +634,7 @@ analytics.subscribe("checkout_shipping_info_submitted", (event) => {
         event.context,
         contextualFieldMapping,
     );
-    const shopifyDetailsObject = event?.data;
+    const shopifyDetailsObject = event;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
     const trackProperties = {
         ...event.data.checkout,
@@ -671,7 +671,7 @@ analytics.subscribe("payment_info_submitted", (event) => {
         event.context,
         contextualFieldMapping,
     );
-    const shopifyDetailsObject = event?.data;
+    const shopifyDetailsObject = event;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
     const trackProperties = {
         ...event.data.checkout,
