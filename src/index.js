@@ -10,27 +10,17 @@ function mapObjectKeys(obj, mapping) {
     }
     const trackProperties = {};
 
-    mapping.forEach(({ shopifyField, rudderField }) => {
+    mapping.forEach(({ shopifyField, rudderField, defaultValue }) => {
         const value = getNestedValue(obj, shopifyField);
         if (value !== undefined) {
             setNestedValue(trackProperties, rudderField, value);
         }
+        if (value == "" && defaultValue) {
+            setNestedValue(trackProperties, rudderField, defaultValue);
+        }
     });
 
     return trackProperties;
-}
-
-function mapContextLineObjectKeys(obj, mapping) {
-    if (!Array.isArray(mapping)) {
-        throw new TypeError("mapping should be an array");
-    }
-    return mapping.reduce((accumulator, { shopifyField, rudderField }) => {
-        const value = getNestedValue(obj, shopifyField);
-        if (value !== undefined) {
-            setNestedValue(accumulator, rudderField, value);
-        }
-        return accumulator;
-    }, { ...obj });
 }
 
 function getNestedValue(obj, path) {
@@ -56,34 +46,23 @@ const contextualFieldMapping = [
     {
         shopifyField: "context.document.referrer",
         rudderField: "page.referrer",
+        defaultValue: "$direct",
     },
     {
-        shopifyField: "document.title",
+        shopifyField: "context.document.title",
         rudderField: "page.title",
     },
     {
-        shopifyField: "navigator.userAgent",
-        rudderField: "userAgent",
-    },
-    {
-        shopifyField: "window.location.href",
+        shopifyField: "context.document.location.href",
         rudderField: "page.url",
     },
     {
-        shopifyField: "window.location.pathname",
+        shopifyField: "context.document.location.pathname",
         rudderField: "page.path",
     },
     {
-        shopifyField: "window.location.search",
+        shopifyField: "context.document.location.search",
         rudderField: "page.search",
-    },
-    {
-        shopifyField: "window.screen.height",
-        rudderField: "screen.height",
-    },
-    {
-        shopifyField: "window.screen.width",
-        rudderField: "screen.width",
     },
 ];
 
@@ -335,7 +314,7 @@ analytics.subscribe("product_viewed", (event) => {
         event.data,
         productViewedEventMapping,
     );
-    const contextualPayload = mapContextLineObjectKeys(
+    const contextualPayload = mapObjectKeys(
         event.context,
         contextualFieldMapping,
     );
@@ -373,7 +352,7 @@ analytics.subscribe("cart_viewed", (event) => {
         products: products,
         cart_id: event?.data?.cart?.id,
     };
-    const contextualPayload = mapContextLineObjectKeys(
+    const contextualPayload = mapObjectKeys(
         event.context,
         contextualFieldMapping,
     );
@@ -396,7 +375,7 @@ analytics.subscribe("product_added_to_cart", (event) => {
         event.data,
         productToCartEventMapping,
     );
-    const contextualPayload = mapContextLineObjectKeys(
+    const contextualPayload = mapObjectKeys(
         event.context,
         contextualFieldMapping,
     );
@@ -421,7 +400,7 @@ analytics.subscribe("product_removed_from_cart", (event) => {
         productToCartEventMapping,
     );
 
-    const contextualPayload = mapContextLineObjectKeys(
+    const contextualPayload = mapObjectKeys(
         event.context,
         contextualFieldMapping,
     );
@@ -458,7 +437,7 @@ analytics.subscribe("collection_viewed", (event) => {
         products: products,
     };
 
-    const contextualPayload = mapContextLineObjectKeys(
+    const contextualPayload = mapObjectKeys(
         event.context,
         contextualFieldMapping,
     );
@@ -504,7 +483,7 @@ analytics.subscribe("checkout_started", (event) => {
         value: event?.data?.checkout?.totalPrice?.amount,
         tax: event?.data?.checkout?.totalTax?.amount,
     };
-    const contextualPayload = mapContextLineObjectKeys(
+    const contextualPayload = mapObjectKeys(
         event.context,
         contextualFieldMapping,
     );
@@ -527,7 +506,7 @@ analytics.subscribe("search_submitted", (event) => {
         query: event?.data?.searchResult?.query,
     };
 
-    const contextualPayload = mapContextLineObjectKeys(
+    const contextualPayload = mapObjectKeys(
         event.context,
         contextualFieldMapping,
     );
@@ -568,7 +547,7 @@ analytics.subscribe("checkout_completed", (event) => {
         value: event?.data?.checkout?.totalPrice?.amount,
         tax: event?.data?.checkout?.totalTax?.amount,
     };
-    const contextualPayload = mapContextLineObjectKeys(
+    const contextualPayload = mapObjectKeys(
         event.context,
         contextualFieldMapping,
     );
@@ -587,7 +566,7 @@ analytics.subscribe("checkout_completed", (event) => {
 });
 
 analytics.subscribe("page_viewed", (event) => {
-    const contextualPayload = mapContextLineObjectKeys(
+    const contextualPayload = mapObjectKeys(
         event.context,
         contextualFieldMapping,
     );
@@ -630,7 +609,7 @@ analytics.subscribe("checkout_address_info_submitted", (event) => {
     };
     rudderanalytics.identify(userId, identifyTraits);
     // track event and mappings
-    const contextualPayload = mapContextLineObjectKeys(
+    const contextualPayload = mapObjectKeys(
         event.context,
         contextualFieldMapping,
     );
@@ -675,7 +654,7 @@ analytics.subscribe("checkout_contact_info_submitted", (event) => {
     };
     rudderanalytics.identify(userId, identifyTraits);
     // track event and mappings
-    const contextualPayload = mapContextLineObjectKeys(
+    const contextualPayload = mapObjectKeys(
         event.context,
         contextualFieldMapping,
     );
@@ -720,7 +699,7 @@ analytics.subscribe("checkout_shipping_info_submitted", (event) => {
     };
     rudderanalytics.identify(userId, identifyTraits);
     // track event and mappings
-    const contextualPayload = mapContextLineObjectKeys(
+    const contextualPayload = mapObjectKeys(
         event.context,
         contextualFieldMapping,
     );
@@ -765,7 +744,7 @@ analytics.subscribe("payment_info_submitted", (event) => {
     };
     rudderanalytics.identify(userId, identifyTraits);
     // track event and mappings
-    const contextualPayload = mapContextLineObjectKeys(
+    const contextualPayload = mapObjectKeys(
         event.context,
         contextualFieldMapping,
     );
