@@ -68,6 +68,8 @@ function setNestedValue(obj, path, value) {
     }, obj);
 }
 
+const commonCartTokenLocation = 'context.document.location.pathname';
+
 const pixelEventToCartTokenLocationMapping = {
     cart_viewed: 'properties.cart_id',
     checkout_address_info_submitted: commonCartTokenLocation,
