@@ -57,6 +57,10 @@ const contextualFieldMapping = [
         rudderField: "page.url",
     },
     {
+        shopifyField: "context.document.location.href",
+        rudderField: "page.tab_url",
+    },
+    {
         shopifyField: "context.document.location.pathname",
         rudderField: "page.path",
     },
