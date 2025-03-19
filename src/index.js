@@ -3,6 +3,23 @@
 const DATAPLANE_URL = "";
 const WRITE_KEY = "";
 
+function get(obj, path, defaultValue = undefined) {
+    if (!obj || !path) return defaultValue;
+
+    const keys = path.split('.');
+    let result = obj;
+
+    for (const key of keys) {
+        if (result === null || result === undefined || typeof result !== 'object') {
+            return defaultValue;
+        }
+        result = result[key];
+    }
+
+    return result !== undefined ? result : defaultValue;
+}
+
+
 //helper functions to map the event data to the RudderStack event schema
 function mapObjectKeys(obj, mapping) {
     if (!Array.isArray(mapping)) {
@@ -49,6 +66,70 @@ function setNestedValue(obj, path, value) {
         }
         return acc[part];
     }, obj);
+}
+
+const pixelEventToCartTokenLocationMapping = {
+    cart_viewed: 'properties.cart_id',
+    checkout_address_info_submitted: commonCartTokenLocation,
+    checkout_contact_info_submitted: commonCartTokenLocation,
+    checkout_shipping_info_submitted: commonCartTokenLocation,
+    payment_info_submitted: commonCartTokenLocation,
+    checkout_started: commonCartTokenLocation,
+    checkout_completed: commonCartTokenLocation,
+};
+
+function extractCartToken(inputEvent) {
+    const cartTokenLocation = pixelEventToCartTokenLocationMapping[inputEvent.name];
+    if (!cartTokenLocation) {
+        return undefined;
+    }
+    // the unparsedCartToken is a string like '/checkout/cn/1234'
+    const unparsedCartToken = get(inputEvent, cartTokenLocation);
+    if (typeof unparsedCartToken !== 'string') {
+        console.error(`Cart token is not a string`);
+        return undefined;
+    }
+    const cartTokenParts = unparsedCartToken.split('/');
+    const cartToken = cartTokenParts[3];
+    return cartToken;
+}
+
+/* 
+* This function updates internal redis with cartToken to anonymousId mapping.
+* The cartToken is extracted from the event object and the anonymousId is extracted from the cookie.
+*/
+function stitchCartTokenToAnonymousId(cartToken, anonymousId, cartObject = {}) {
+    if (!cartToken || !anonymousId) {
+        console.error("Missing required parameters: cartToken or anonymousId");
+        return;
+    }
+
+    const payload = {
+        event: "rudderIdentifier",
+        pixelEventLabel: true,
+        anonymousId: anonymousId,
+        action: "stitchCartTokenToAnonId",
+        cartToken: cartToken,
+        cart: cartObject
+    };
+
+    const url = `${DATAPLANE_URL}/v1/webhook?writeKey=${WRITE_KEY}`;
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => console.log('Stitching successful:', data))
+        .catch(error => console.error('Stitching error:', error));
 }
 
 // Mapping of Shopify fields to RudderStack fields
@@ -348,6 +429,10 @@ analytics.subscribe("product_viewed", (event) => {
 });
 
 analytics.subscribe("cart_viewed", (event) => {
+    const anonymousIdValueFromCookie = rudderanalytics.getAnonymousId();
+    const cartToken = extractCartToken(event);
+    stitchCartTokenToAnonymousId(cartToken, anonymousIdValueFromCookie, event.data);
+
     const lines = event?.data?.cart?.lines;
     if (!lines) {
         return;
