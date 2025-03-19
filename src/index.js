@@ -344,7 +344,15 @@ analytics.subscribe("product_viewed", (event) => {
 
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
-    rudderanalytics.track("Product Viewed", trackProperties, contextualPayload);
+    rudderanalytics.track("Product Viewed", trackProperties, {
+        ...contextualPayload, integrations: {
+            DATA_WAREHOUSE: {
+                options: {
+                    jsonPaths: ['track.context.shopifyDetails'],
+                },
+            },
+        }
+    },);
 });
 
 analytics.subscribe("cart_viewed", (event) => {
@@ -374,7 +382,15 @@ analytics.subscribe("cart_viewed", (event) => {
     delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
-    rudderanalytics.track("Cart Viewed", trackProperties, contextualPayload);
+    rudderanalytics.track("Cart Viewed", trackProperties, {
+        ...contextualPayload, integrations: {
+            DATA_WAREHOUSE: {
+                options: {
+                    jsonPaths: ['track.context.shopifyDetails'],
+                },
+            },
+        }
+    },);
 });
 
 analytics.subscribe("product_added_to_cart", (event) => {
@@ -390,7 +406,16 @@ analytics.subscribe("product_added_to_cart", (event) => {
     delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
-    rudderanalytics.track("Product Added", trackProperties, contextualPayload);
+    rudderanalytics.track("Product Added", trackProperties, {
+        ...contextualPayload, integrations: {
+            DATA_WAREHOUSE: {
+                options: {
+                    jsonPaths: ['track.context.shopifyDetails'],
+                },
+            },
+        }
+    },
+    );
 });
 
 analytics.subscribe("product_removed_from_cart", (event) => {
@@ -407,7 +432,16 @@ analytics.subscribe("product_removed_from_cart", (event) => {
     delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
-    rudderanalytics.track("Product Removed", trackProperties, contextualPayload);
+    rudderanalytics.track("Product Removed", trackProperties, {
+        ...contextualPayload, integrations: {
+            DATA_WAREHOUSE: {
+                options: {
+                    jsonPaths: ['track.context.shopifyDetails'],
+                },
+            },
+        }
+    },
+    );
 });
 
 analytics.subscribe("collection_viewed", (event) => {
@@ -439,7 +473,15 @@ analytics.subscribe("collection_viewed", (event) => {
     rudderanalytics.track(
         "Product List Viewed",
         finalProperties,
-        contextualPayload,
+        {
+            ...contextualPayload, integrations: {
+                DATA_WAREHOUSE: {
+                    options: {
+                        jsonPaths: ['track.context.shopifyDetails'],
+                    },
+                },
+            }
+        },
     );
 });
 
@@ -475,7 +517,15 @@ analytics.subscribe("checkout_started", (event) => {
     delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
-    rudderanalytics.track("Checkout Started", finalProperties, contextualPayload);
+    rudderanalytics.track("Checkout Started", finalProperties, {
+        ...contextualPayload, integrations: {
+            DATA_WAREHOUSE: {
+                options: {
+                    jsonPaths: ['track.context.shopifyDetails'],
+                },
+            },
+        }
+    },);
 });
 
 analytics.subscribe("search_submitted", (event) => {
@@ -491,7 +541,15 @@ analytics.subscribe("search_submitted", (event) => {
     delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
-    rudderanalytics.track("Products Searched", payload, contextualPayload);
+    rudderanalytics.track("Products Searched", payload, {
+        ...contextualPayload, integrations: {
+            DATA_WAREHOUSE: {
+                options: {
+                    jsonPaths: ['track.context.shopifyDetails'],
+                },
+            },
+        }
+    },);
 });
 
 analytics.subscribe("checkout_completed", (event) => {
@@ -525,7 +583,15 @@ analytics.subscribe("checkout_completed", (event) => {
     delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
-    rudderanalytics.track("Order Completed", trackProperties, contextualPayload);
+    rudderanalytics.track("Order Completed", trackProperties, {
+        ...contextualPayload, integrations: {
+            DATA_WAREHOUSE: {
+                options: {
+                    jsonPaths: ['track.context.shopifyDetails'],
+                },
+            },
+        }
+    },);
 });
 
 analytics.subscribe("page_viewed", (event) => {
@@ -541,7 +607,15 @@ analytics.subscribe("page_viewed", (event) => {
         ...event.data,
     };
 
-    rudderanalytics.page("Page Viewed", pageProperties, contextualPayload);
+    rudderanalytics.page("Page Viewed", pageProperties, {
+        ...contextualPayload, integrations: {
+            DATA_WAREHOUSE: {
+                options: {
+                    jsonPaths: ['page.context.shopifyDetails'],
+                },
+            },
+        }
+    },);
 });
 
 analytics.subscribe("checkout_address_info_submitted", (event) => {
@@ -573,12 +647,20 @@ analytics.subscribe("checkout_address_info_submitted", (event) => {
     delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
     const trackProperties = {
-        ...event.data.checkout,
+        checkout_id: data.checkout.token,
     };
     rudderanalytics.track(
         "Checkout Address Info Submitted",
         trackProperties,
-        contextualPayload,
+        {
+            ...contextualPayload, integrations: {
+                DATA_WAREHOUSE: {
+                    options: {
+                        jsonPaths: ['track.context.shopifyDetails'],
+                    },
+                },
+            }
+        },
     );
 });
 
@@ -611,12 +693,20 @@ analytics.subscribe("checkout_contact_info_submitted", (event) => {
     delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
     const trackProperties = {
-        ...event.data.checkout,
+        checkout_id: data.checkout.token,
     };
     rudderanalytics.track(
         "Checkout Contact Info Submitted",
         trackProperties,
-        contextualPayload,
+        {
+            ...contextualPayload, integrations: {
+                DATA_WAREHOUSE: {
+                    options: {
+                        jsonPaths: ['track.context.shopifyDetails'],
+                    },
+                },
+            }
+        },
     );
 });
 
@@ -649,12 +739,20 @@ analytics.subscribe("checkout_shipping_info_submitted", (event) => {
     delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
     const trackProperties = {
-        ...event.data.checkout,
+        checkout_id: data.checkout.token,
     };
     rudderanalytics.track(
         "Checkout Shipping Info Submitted",
         trackProperties,
-        contextualPayload,
+        {
+            ...contextualPayload, integrations: {
+                DATA_WAREHOUSE: {
+                    options: {
+                        jsonPaths: ['track.context.shopifyDetails'],
+                    },
+                },
+            }
+        },
     );
 });
 
@@ -687,11 +785,19 @@ analytics.subscribe("payment_info_submitted", (event) => {
     delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
     const trackProperties = {
-        ...event.data.checkout,
+        checkout_id: data.checkout.token,
     };
     rudderanalytics.track(
         "Payment Info Submitted",
         trackProperties,
-        contextualPayload,
+        {
+            ...contextualPayload, integrations: {
+                DATA_WAREHOUSE: {
+                    options: {
+                        jsonPaths: ['track.context.shopifyDetails'],
+                    },
+                },
+            }
+        },
     );
 });
