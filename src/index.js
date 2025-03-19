@@ -340,7 +340,6 @@ analytics.subscribe("product_viewed", (event) => {
         contextualFieldMapping,
     );
     const shopifyDetailsObject = event;
-    delete shopifyDetailsObject.context;
 
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
@@ -379,7 +378,6 @@ analytics.subscribe("cart_viewed", (event) => {
         contextualFieldMapping,
     );
     const shopifyDetailsObject = event;
-    delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
     rudderanalytics.track("Cart Viewed", trackProperties, {
@@ -403,7 +401,6 @@ analytics.subscribe("product_added_to_cart", (event) => {
         contextualFieldMapping,
     );
     const shopifyDetailsObject = event;
-    delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
     rudderanalytics.track("Product Added", trackProperties, {
@@ -429,7 +426,6 @@ analytics.subscribe("product_removed_from_cart", (event) => {
         contextualFieldMapping,
     );
     const shopifyDetailsObject = event;
-    delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
     rudderanalytics.track("Product Removed", trackProperties, {
@@ -467,7 +463,6 @@ analytics.subscribe("collection_viewed", (event) => {
         contextualFieldMapping,
     );
     const shopifyDetailsObject = event;
-    delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
     rudderanalytics.track(
@@ -514,7 +509,6 @@ analytics.subscribe("checkout_started", (event) => {
         contextualFieldMapping,
     );
     const shopifyDetailsObject = event;
-    delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
     rudderanalytics.track("Checkout Started", finalProperties, {
@@ -538,7 +532,6 @@ analytics.subscribe("search_submitted", (event) => {
         contextualFieldMapping,
     );
     const shopifyDetailsObject = event;
-    delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
     rudderanalytics.track("Products Searched", payload, {
@@ -580,7 +573,6 @@ analytics.subscribe("checkout_completed", (event) => {
         contextualFieldMapping,
     );
     const shopifyDetailsObject = event;
-    delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
     rudderanalytics.track("Order Completed", trackProperties, {
@@ -600,7 +592,6 @@ analytics.subscribe("page_viewed", (event) => {
         contextualFieldMapping,
     );
     const shopifyDetailsObject = event;
-    delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
 
     const pageProperties = {
@@ -644,7 +635,6 @@ analytics.subscribe("checkout_address_info_submitted", (event) => {
         contextualFieldMapping,
     );
     const shopifyDetailsObject = event;
-    delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
     const trackProperties = {
         checkout_id: data.checkout.token,
@@ -690,7 +680,6 @@ analytics.subscribe("checkout_contact_info_submitted", (event) => {
         contextualFieldMapping,
     );
     const shopifyDetailsObject = event;
-    delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
     const trackProperties = {
         checkout_id: data.checkout.token,
@@ -736,7 +725,6 @@ analytics.subscribe("checkout_shipping_info_submitted", (event) => {
         contextualFieldMapping,
     );
     const shopifyDetailsObject = event;
-    delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
     const trackProperties = {
         checkout_id: data.checkout.token,
@@ -782,7 +770,6 @@ analytics.subscribe("payment_info_submitted", (event) => {
         contextualFieldMapping,
     );
     const shopifyDetailsObject = event;
-    delete shopifyDetailsObject.context;
     contextualPayload.shopifyDetails = shopifyDetailsObject;
     const trackProperties = {
         checkout_id: data.checkout.token,
