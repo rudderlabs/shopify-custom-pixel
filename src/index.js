@@ -104,7 +104,7 @@ const productViewedEventMapping = [
         rudderField: "url",
     },
     {
-        shopifyField: "productVariant.product.sku",
+        shopifyField: "productVariant.sku",
         rudderField: "sku",
     },
     {
