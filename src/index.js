@@ -44,28 +44,28 @@ function setNestedValue(obj, path, value) {
 // Mapping of Shopify fields to RudderStack fields
 const contextualFieldMapping = [
     {
-        shopifyField: "context.document.referrer",
+        shopifyField: "document.referrer",
         rudderField: "page.referrer",
         defaultValue: "$direct",
     },
     {
-        shopifyField: "context.document.title",
+        shopifyField: "document.title",
         rudderField: "page.title",
     },
     {
-        shopifyField: "context.document.location.href",
+        shopifyField: "document.location.href",
         rudderField: "page.url",
     },
     {
-        shopifyField: "context.document.location.href",
+        shopifyField: "document.location.href",
         rudderField: "page.tab_url",
     },
     {
-        shopifyField: "context.document.location.pathname",
+        shopifyField: "document.location.pathname",
         rudderField: "page.path",
     },
     {
-        shopifyField: "context.document.location.search",
+        shopifyField: "document.location.search",
         rudderField: "page.search",
     },
 ];
