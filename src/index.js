@@ -2,6 +2,9 @@
 // Please replace the below values with your own values.
 const DATAPLANE_URL = "";
 const WRITE_KEY = "";
+// Set to true to link these pixel events with Shopify webhook events (checkouts, orders)
+// through identity stitching. Requires WRITE_KEY to be your Shopify source write key.
+const ENABLE_IDENTITY_STITCHING = false;
 
 //helper functions to map the event data to the RudderStack event schema
 function mapObjectKeys(obj, mapping) {
@@ -312,6 +315,163 @@ const checkoutStartedCompletedEventMapping = [
         }
     }
 })();
+
+// ---- Identity stitching (optional, disabled by default) ----
+// Enabled by ENABLE_IDENTITY_STITCHING at the top of this file.
+// Links these pixel events to the Shopify webhook events (checkouts, orders) received by your
+// Shopify source, by mapping the Shopify cart token and the logged-in customer id to the
+// RudderStack anonymousId. WRITE_KEY must be the Shopify source write key: the stitching
+// requests go to /v1/webhook, which only accepts webhook-type sources.
+// Requires the RudderStack Shopify app, which sends the webhooks this links to. Keep the app's
+// "Client Side Event Tracking using Web Pixel" setting disabled, so its own script doesn't
+// stitch the cart token to a different anonymousId.
+// Use only one identity stitching method per store: don't combine this with the storefront
+// reference implementation from the docs.
+// The pixel sandbox has no access to the AJAX Cart API (/cart.js), so the cart token is read
+// from pixel data instead.
+// Guard cookies use the same names and storage as the RudderStack App Embed Script (tracker.js):
+// first-party session cookies on the storefront, set through the pixel's browser.cookie API.
+const STITCH_WEBHOOK_URL = `${DATAPLANE_URL}/v1/webhook?writeKey=${WRITE_KEY}`;
+const CART_STITCH_COOKIE_NAME = "rs_identifier_last_set";
+const CART_STITCH_TTL_MS = 60 * 60 * 1000; // re-send the cart mapping at most once an hour
+const STITCHED_USER_ID_COOKIE_NAME = "rs_current_user_id";
+const CHECKOUT_EVENTS = [
+    "checkout_started",
+    "checkout_contact_info_submitted",
+    "checkout_address_info_submitted",
+    "checkout_shipping_info_submitted",
+    "payment_info_submitted",
+    "checkout_completed",
+];
+
+// "gid://shopify/Cart/<token>?key=<key>" or "<token>?key=<key>" -> "<token>"
+function parseCartTokenFromCartId(cartId) {
+    if (typeof cartId !== "string" || cartId === "") {
+        return null;
+    }
+    const segments = cartId.split("?")[0].split("/");
+    return segments[segments.length - 1] || null;
+}
+
+// "/checkouts/cn/<token>/..." -> "<token>"
+function parseCartTokenFromCheckoutPath(pathname) {
+    if (typeof pathname !== "string") {
+        return null;
+    }
+    const match = pathname.match(/^\/checkouts\/cn\/([^/?#]+)/);
+    return match ? match[1] : null;
+}
+
+// "gid://shopify/Customer/123" or 123 -> "123"
+function parseNumericId(id) {
+    if (id === undefined || id === null || id === "") {
+        return null;
+    }
+    const segments = String(id).split("/");
+    return segments[segments.length - 1] || null;
+}
+
+async function postStitchRequest(payload) {
+    const response = await fetch(STITCH_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            event: "rudderIdentifier",
+            pixelEventLabel: true,
+            ...payload,
+        }),
+    });
+    if (!response.ok) {
+        throw new Error(`${payload.action} request failed with status ${response.status}`);
+    }
+}
+
+// Session cookie (no expiry), path=/ and SameSite=Lax, matching tracker.js cookie_action
+async function setSessionCookie(name, value) {
+    await browser.cookie.set(`${name}=${value}; path=/; SameSite=Lax`);
+}
+
+async function isCartStitchRecent(cartToken) {
+    try {
+        const lastCartStitch = await browser.cookie.get(CART_STITCH_COOKIE_NAME);
+        if (!lastCartStitch) {
+            return false;
+        }
+        const { cartToken: lastCartToken, timestamp } = JSON.parse(lastCartStitch);
+        return lastCartToken === cartToken && Date.now() - timestamp < CART_STITCH_TTL_MS;
+    } catch (error) {
+        return false;
+    }
+}
+
+function stitchCartToken(cartToken, source) {
+    if (!cartToken) {
+        return;
+    }
+    rudderanalytics.ready(async () => {
+        const anonymousId = rudderanalytics.getAnonymousId();
+        if (!anonymousId || (await isCartStitchRecent(cartToken))) {
+            return;
+        }
+        try {
+            await postStitchRequest({ action: "stitchCartTokenToAnonId", anonymousId, cartToken });
+            await setSessionCookie(
+                CART_STITCH_COOKIE_NAME,
+                JSON.stringify({ cartToken, timestamp: Date.now() }),
+            );
+            console.debug(`[rudderstack] stitched cart token ${cartToken} -> ${anonymousId} (from ${source})`);
+        } catch (error) {
+            console.error("[rudderstack] cart token stitch failed", error);
+        }
+    });
+}
+
+function stitchUserId(userId, source) {
+    if (!userId) {
+        return;
+    }
+    rudderanalytics.ready(async () => {
+        const anonymousId = rudderanalytics.getAnonymousId();
+        if (!anonymousId) {
+            return;
+        }
+        try {
+            const lastStitchedUserId = await browser.cookie.get(STITCHED_USER_ID_COOKIE_NAME);
+            if (lastStitchedUserId === userId) {
+                return;
+            }
+            await postStitchRequest({ action: "stitchUserIdToAnonId", anonymousId, userId });
+            await setSessionCookie(STITCHED_USER_ID_COOKIE_NAME, userId);
+            console.debug(`[rudderstack] stitched userId ${userId} -> ${anonymousId} (from ${source})`);
+        } catch (error) {
+            console.error("[rudderstack] userId stitch failed", error);
+        }
+    });
+}
+
+if (ENABLE_IDENTITY_STITCHING) {
+    // Page load: stitch the existing cart and the logged-in customer, if any
+    stitchCartToken(parseCartTokenFromCartId(init?.data?.cart?.id), "init.data.cart.id");
+    stitchUserId(parseNumericId(init?.data?.customer?.id), "init.data.customer.id");
+
+    analytics.subscribe("cart_viewed", (event) => {
+        stitchCartToken(parseCartTokenFromCartId(event?.data?.cart?.id), "cart_viewed");
+    });
+
+    CHECKOUT_EVENTS.forEach((eventName) => {
+        analytics.subscribe(eventName, (event) => {
+            stitchCartToken(
+                parseCartTokenFromCheckoutPath(event?.context?.document?.location?.pathname),
+                eventName,
+            );
+        });
+    });
+
+    // Guest checkout that ends with a customer record
+    analytics.subscribe("checkout_completed", (event) => {
+        stitchUserId(parseNumericId(event?.data?.checkout?.order?.customer?.id), "checkout_completed");
+    });
+}
 
 analytics.subscribe("product_viewed", (event) => {
     const trackProperties = mapObjectKeys(
