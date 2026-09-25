@@ -36,3 +36,9 @@ This project provides an easy-to-follow guide and implementation for adding cust
 \*\*Describe how to use the software.\*\*
 Replace all the references of the <DATAPLANE_URL> & <WRITE_KEY> placeholder with actual values at (src/index.js)
 Follow https://help.shopify.com/en/manual/promoting-marketing/pixels/custom-pixels/manage for adding the custom pixel in the store
+
+## Identity stitching
+
+This custom pixel tracks Shopify's standard customer events, but it does not map a Shopify cart token to the RudderStack `anonymousId`. Shopify checkout events expose a checkout token as `event.data.checkout.token`; that value remains the `checkout_id` and is not a substitute for the cart token expected by RudderStack's stitching endpoint.
+
+If you combine custom-pixel events with Shopify webhook events, implement cart-token stitching in storefront, app-embed, or headless code that can reliably access the cart. See the [Shopify App Identity Stitching guide](https://www.rudderstack.com/docs/sources/event-streams/cloud-apps/shopify/shopify-source-solution/id-stitching/) for the maintained reference implementation and [INT-7122 decision record](docs/decisions/INT-7122-cart-token-stitching.md) for the custom-pixel sandbox feasibility evidence.
