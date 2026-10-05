@@ -310,7 +310,7 @@ const checkoutStartedCompletedEventMapping = [
             } else {
                 window.rudderAnalyticsMount();
             }
-            var loadOptions = {};
+            var loadOptions = { onLoaded: onRudderAnalyticsLoaded };
             rudderanalytics.load(WRITE_KEY, DATAPLANE_URL, loadOptions);
         }
     }
@@ -319,8 +319,7 @@ const checkoutStartedCompletedEventMapping = [
 // ---- Identity stitching (optional, disabled by default) ----
 // Enabled by ENABLE_IDENTITY_STITCHING at the top of this file.
 // Links these pixel events to the Shopify webhook events (checkouts, orders) received by your
-// Shopify source, by mapping the Shopify cart token and the logged-in customer id to the
-// RudderStack anonymousId. WRITE_KEY must be the Shopify source write key: the stitching
+// Shopify source, by mapping the Shopify cart token to the RudderStack anonymousId. WRITE_KEY must be the Shopify source write key: the stitching
 // requests go to /v1/webhook, which only accepts webhook-type sources.
 // Requires the RudderStack Shopify app, which sends the webhooks this links to. Keep the app's
 // "Client Side Event Tracking using Web Pixel" setting disabled, so its own script doesn't
@@ -329,12 +328,21 @@ const checkoutStartedCompletedEventMapping = [
 // reference implementation from the docs.
 // The pixel sandbox has no access to the AJAX Cart API (/cart.js), so the cart token is read
 // from pixel data instead.
-// Guard cookies use the same names and storage as the RudderStack App Embed Script (tracker.js):
-// first-party session cookies on the storefront, set through the pixel's browser.cookie API.
+// The guard cookie uses the same name and storage as the RudderStack App Embed Script (tracker.js):
+// a first-party session cookie on the storefront, set through the pixel's browser.cookie API.
 const STITCH_WEBHOOK_URL = `${DATAPLANE_URL}/v1/webhook?writeKey=${WRITE_KEY}`;
 const CART_STITCH_COOKIE_NAME = "rs_identifier_last_set";
 const CART_STITCH_TTL_MS = 60 * 60 * 1000; // re-send the cart mapping at most once an hour
-const STITCHED_USER_ID_COOKIE_NAME = "rs_current_user_id";
+
+// Resolved by the SDK's onLoaded load option: the anonymousId is available from then on, without
+// waiting for device-mode destinations to load like ready() does.
+let resolveRudderAnalyticsLoaded;
+const rudderAnalyticsLoaded = new Promise((resolve) => {
+    resolveRudderAnalyticsLoaded = resolve;
+});
+function onRudderAnalyticsLoaded() {
+    resolveRudderAnalyticsLoaded();
+}
 const CHECKOUT_EVENTS = [
     "checkout_started",
     "checkout_contact_info_submitted",
@@ -354,21 +362,14 @@ function parseCartTokenFromCartId(cartId) {
 }
 
 // "/checkouts/cn/<token>/..." -> "<token>"
+// Same URL format the transformer uses for app pixel checkout events. If Shopify changes it,
+// this returns null and the stitch is skipped; a wrong token is never sent.
 function parseCartTokenFromCheckoutPath(pathname) {
     if (typeof pathname !== "string") {
         return null;
     }
     const match = pathname.match(/^\/checkouts\/cn\/([^/?#]+)/);
     return match ? match[1] : null;
-}
-
-// "gid://shopify/Customer/123" or 123 -> "123"
-function parseNumericId(id) {
-    if (id === undefined || id === null || id === "") {
-        return null;
-    }
-    const segments = String(id).split("/");
-    return segments[segments.length - 1] || null;
 }
 
 async function postStitchRequest(payload) {
@@ -408,7 +409,7 @@ function stitchCartToken(cartToken, source) {
     if (!cartToken) {
         return;
     }
-    rudderanalytics.ready(async () => {
+    rudderAnalyticsLoaded.then(async () => {
         const anonymousId = rudderanalytics.getAnonymousId();
         if (!anonymousId || (await isCartStitchRecent(cartToken))) {
             return;
@@ -419,40 +420,16 @@ function stitchCartToken(cartToken, source) {
                 CART_STITCH_COOKIE_NAME,
                 JSON.stringify({ cartToken, timestamp: Date.now() }),
             );
-            console.debug(`[rudderstack] stitched cart token ${cartToken} -> ${anonymousId} (from ${source})`);
+            console.debug(`[rudderstack] anonymous identity stitching successful (from ${source})`);
         } catch (error) {
-            console.error("[rudderstack] cart token stitch failed", error);
-        }
-    });
-}
-
-function stitchUserId(userId, source) {
-    if (!userId) {
-        return;
-    }
-    rudderanalytics.ready(async () => {
-        const anonymousId = rudderanalytics.getAnonymousId();
-        if (!anonymousId) {
-            return;
-        }
-        try {
-            const lastStitchedUserId = await browser.cookie.get(STITCHED_USER_ID_COOKIE_NAME);
-            if (lastStitchedUserId === userId) {
-                return;
-            }
-            await postStitchRequest({ action: "stitchUserIdToAnonId", anonymousId, userId });
-            await setSessionCookie(STITCHED_USER_ID_COOKIE_NAME, userId);
-            console.debug(`[rudderstack] stitched userId ${userId} -> ${anonymousId} (from ${source})`);
-        } catch (error) {
-            console.error("[rudderstack] userId stitch failed", error);
+            console.error("[rudderstack] anonymous identity stitching failed", error);
         }
     });
 }
 
 if (ENABLE_IDENTITY_STITCHING) {
-    // Page load: stitch the existing cart and the logged-in customer, if any
+    // Page load: stitch the existing cart, if any
     stitchCartToken(parseCartTokenFromCartId(init?.data?.cart?.id), "init.data.cart.id");
-    stitchUserId(parseNumericId(init?.data?.customer?.id), "init.data.customer.id");
 
     analytics.subscribe("cart_viewed", (event) => {
         stitchCartToken(parseCartTokenFromCartId(event?.data?.cart?.id), "cart_viewed");
@@ -465,11 +442,6 @@ if (ENABLE_IDENTITY_STITCHING) {
                 eventName,
             );
         });
-    });
-
-    // Guest checkout that ends with a customer record
-    analytics.subscribe("checkout_completed", (event) => {
-        stitchUserId(parseNumericId(event?.data?.checkout?.order?.customer?.id), "checkout_completed");
     });
 }
 

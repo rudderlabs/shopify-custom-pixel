@@ -39,7 +39,7 @@ Follow https://help.shopify.com/en/manual/promoting-marketing/pixels/custom-pixe
 
 ## Identity stitching (optional)
 
-The pixel can link its client-side events to the Shopify webhook events (checkouts, orders) received by your Shopify source, by mapping the Shopify cart token and the logged-in customer id to the RudderStack `anonymousId`.
+The pixel can link its client-side events to the Shopify webhook events (checkouts, orders) received by your Shopify source, by mapping the Shopify cart token to the RudderStack `anonymousId`.
 
 This is **disabled by default**.
 
